@@ -1,0 +1,59 @@
+{
+	"name": "org2-network",
+	"version": "1.0.0",
+	"client": {
+		"tlsEnable": true,
+		"adminCredential": {
+			"id": "exploreradmin",
+			"password": "exploreradminpw"
+		},
+		"enableAuthentication": true,
+		"organization": "YhMSP",
+		"connection": {
+			"timeout": {
+				"peer": {
+					"endorser": "300"
+				},
+				"orderer": "300"
+			}
+		}
+	},
+	"channels": {
+		"mychannel": {
+			"peers": {
+				"peer0.jxnu.yh.com": {}
+			},
+			"connection": {
+				"timeout": {
+					"peer": {
+						"endorser": "6000",
+						"eventHub": "6000",
+						"eventReg": "6000"
+					}
+				}
+			}
+		}
+	},
+	"organizations": {
+		"YhMSP": {
+			"mspid": "YhMSP",
+			"adminPrivateKey": {
+				"path": "/tmp/crypto/peerOrganizations/jxnu.yh.com/users/Admin@jxnu.yh.com/msp/keystore/priv_sk"
+			},
+			"peers": ["peer0.jxnu.yh.com"],
+			"signedCert": {
+				"path": "/tmp/crypto/peerOrganizations/jxnu.yh.com/users/Admin@jxnu.yh.com/msp/signcerts/Admin@jxnu.yh.com-cert.pem"
+			}
+		}
+
+	},
+
+	"peers": {
+		"peer0.jxnu.yh.com": {
+			"tlsCACerts": {
+				"path": "/tmp/crypto/peerOrganizations/jxnu.yh.com/peers/peer0.jxnu.yh.com/tls/ca.crt"
+			},
+			"url": "grpcs://peer0.jxnu.yh.com:7151"
+		}
+	}
+}

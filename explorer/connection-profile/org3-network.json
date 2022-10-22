@@ -1,0 +1,59 @@
+{
+	"name": "org3-network",
+	"version": "1.0.0",
+	"client": {
+		"tlsEnable": true,
+		"adminCredential": {
+			"id": "exploreradmin",
+			"password": "exploreradminpw"
+		},
+		"enableAuthentication": true,
+		"organization": "GqcMSP",
+		"connection": {
+			"timeout": {
+				"peer": {
+					"endorser": "300"
+				},
+				"orderer": "300"
+			}
+		}
+	},
+	"channels": {
+		"mychannel": {
+			"peers": {
+				"peer0.jxnu.gqc.com": {}
+			},
+			"connection": {
+				"timeout": {
+					"peer": {
+						"endorser": "6000",
+						"eventHub": "6000",
+						"eventReg": "6000"
+					}
+				}
+			}
+		}
+	},
+	"organizations": {
+		"GqcMSP": {
+			"mspid": "GqcMSP",
+			"adminPrivateKey": {
+				"path": "/tmp/crypto/peerOrganizations/jxnu.gqc.com/users/Admin@jxnu.gqc.com/msp/keystore/priv_sk"
+			},
+			"peers": ["peer0.jxnu.gqc.com"],
+			"signedCert": {
+				"path": "/tmp/crypto/peerOrganizations/jxnu.gqc.com/users/Admin@jxnu.gqc.com/msp/signcerts/Admin@jxnu.gqc.com-cert.pem"
+			}
+		}
+
+	},
+
+	"peers": {
+		"peer0.jxnu.gqc.com": {
+			"tlsCACerts": {
+				"path": "/tmp/crypto/peerOrganizations/jxnu.gqc.com/peers/peer0.jxnu.gqc.com/tls/ca.crt"
+			},
+			"url": "grpcs://peer0.jxnu.gqc.com:7251"
+		}
+	}
+}
