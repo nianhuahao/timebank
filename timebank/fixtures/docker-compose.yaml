@@ -1,0 +1,292 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+volumes:
+  orderer.jxnu.com:
+  peer0.jxnu.qsh.com:
+  peer0.jxnu.yh.com:
+  peer0.jxnu.gqc.com:
+
+networks:
+  test:
+
+services:
+
+  orderer.jxnu.com:
+    container_name: orderer.jxnu.com
+    image: hyperledger/fabric-orderer:2.2
+    environment:
+      - FABRIC_LOGGING_SPEC=DEBUG
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_LISTENPORT=7050
+      - ORDERER_GENERAL_GENESISMETHOD=file
+      - ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/orderer.genesis.block
+      - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
+      # enabled TLS
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+    #      - ORDERER_KAFKA_TOPIC_REPLICATIONFACTOR=1
+    #      - ORDERER_KAFKA_VERBOSE=true
+    #      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+    #      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+    #      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric
+    command: orderer
+    volumes:
+      - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+      - ./crypto-config/ordererOrganizations/jxnu.com/orderers/orderer.jxnu.com/msp:/var/hyperledger/orderer/msp
+      - ./crypto-config/ordererOrganizations/jxnu.com/orderers/orderer.jxnu.com/tls/:/var/hyperledger/orderer/tls
+      - orderer.jxnu.com:/var/hyperledger/production/orderer
+    ports:
+      - 7050:7050
+    networks:
+      - test
+
+  peer0.jxnu.qsh.com:
+    container_name: peer0.jxnu.qsh.com
+    image: hyperledger/fabric-peer:2.2
+    environment:
+      #Generic peer variables
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      # the following setting starts chaincode containers on the same
+      # bridge network as the peers
+      # https://docs.docker.com/compose/networking/
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=fixtures_test
+      - FABRIC_LOGGING_SPEC=DEBUG
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      # Peer specific variabes
+      - CORE_PEER_ID=peer0.jxnu.qsh.com
+      - CORE_PEER_ADDRESS=peer0.jxnu.qsh.com:7051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.jxnu.qsh.com:7052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.jxnu.qsh.com:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.jxnu.qsh.com:7051
+      - CORE_PEER_LOCALMSPID=QshMSP
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=123456
+    volumes:
+      - /var/run/:/host/var/run/
+      - ./crypto-config/peerOrganizations/jxnu.qsh.com/peers/peer0.jxnu.qsh.com/msp:/etc/hyperledger/fabric/msp
+      - ./crypto-config/peerOrganizations/jxnu.qsh.com/peers/peer0.jxnu.qsh.com/tls:/etc/hyperledger/fabric/tls
+      - peer0.jxnu.qsh.com:/var/hyperledger/production
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    ports:
+      - 7051:7051
+    depends_on:
+      - orderer.jxnu.com
+      #- couchdb.jxnu.com
+    networks:
+      - test
+
+  peer0.jxnu.yh.com:
+    container_name: peer0.jxnu.yh.com
+    image: hyperledger/fabric-peer:2.2
+    environment:
+      #Generic peer variables
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      # the following setting starts chaincode containers on the same
+      # bridge network as the peers
+      # https://docs.docker.com/compose/networking/
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=fixtures_test
+      - FABRIC_LOGGING_SPEC=DEBUG
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      # Peer specific variabes
+      - CORE_PEER_ID=peer0.jxnu.yh.com
+      - CORE_PEER_ADDRESS=peer0.jxnu.yh.com:7151
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:7151
+      - CORE_PEER_CHAINCODEADDRESS=peer0.jxnu.yh.com:7152
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7152
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.jxnu.yh.com:7151
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.jxnu.yh.com:7151
+      - CORE_PEER_LOCALMSPID=YhMSP
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb1:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=123456
+    volumes:
+      - /var/run/:/host/var/run/
+      - ./crypto-config/peerOrganizations/jxnu.yh.com/peers/peer0.jxnu.yh.com/msp:/etc/hyperledger/fabric/msp
+      - ./crypto-config/peerOrganizations/jxnu.yh.com/peers/peer0.jxnu.yh.com/tls:/etc/hyperledger/fabric/tls
+      - peer0.jxnu.yh.com:/var/hyperledger/production
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    ports:
+      - 7151:7151
+    depends_on:
+      - orderer.jxnu.com
+      #- couchdb.jxnu.com
+    networks:
+      - test
+
+  peer0.jxnu.gqc.com:
+    container_name: peer0.jxnu.gqc.com
+    image: hyperledger/fabric-peer:2.2
+    environment:
+      #Generic peer variables
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      # the following setting starts chaincode containers on the same
+      # bridge network as the peers
+      # https://docs.docker.com/compose/networking/
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=fixtures_test
+      - FABRIC_LOGGING_SPEC=DEBUG
+      #- FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      # Peer specific variabes
+      - CORE_PEER_ID=peer0.jxnu.gqc.com
+      - CORE_PEER_ADDRESS=peer0.jxnu.gqc.com:7251
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:7251
+      - CORE_PEER_CHAINCODEADDRESS=peer0.jxnu.gqc.com:7252
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7252
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.jxnu.gqc.com:7251
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.jxnu.gqc.com:7251
+      - CORE_PEER_LOCALMSPID=GqcMSP
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb2:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=123456
+    volumes:
+      - /var/run/:/host/var/run/
+      - ./crypto-config/peerOrganizations/jxnu.gqc.com/peers/peer0.jxnu.gqc.com/msp:/etc/hyperledger/fabric/msp
+      - ./crypto-config/peerOrganizations/jxnu.gqc.com/peers/peer0.jxnu.gqc.com/tls:/etc/hyperledger/fabric/tls
+      - peer0.jxnu.gqc.com:/var/hyperledger/production
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    ports:
+      - 7251:7251
+    depends_on:
+      - orderer.jxnu.com
+      #- couchdb.jxnu.com
+    networks:
+      - test
+
+
+
+
+  ca.jxnu.qsh.com:
+    image: hyperledger/fabric-ca:1.4.9
+    container_name: ca.jxnu.qsh.com
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca.jxnu.qsh.com
+      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.jxnu.qsh.com-cert.pem
+      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/priv_sk
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.jxnu.qsh.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/priv_sk
+    ports:
+      - 7054:7054
+    command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+    volumes:
+      - ./crypto-config/peerOrganizations/jxnu.qsh.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    networks:
+      - test
+
+  ca.jxnu.yh.com:
+    image: hyperledger/fabric-ca:1.4.9
+    container_name: ca.jxnu.yh.com
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca.jxnu.yh.com
+      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.jxnu.yh.com-cert.pem
+      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/priv_sk
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.jxnu.yh.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/priv_sk
+    ports:
+      - 7154:7154
+    command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+    volumes:
+      - ./crypto-config/peerOrganizations/jxnu.yh.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    networks:
+      - test
+
+  ca.jxnu.gqc.com:
+    image: hyperledger/fabric-ca:1.4.9
+    container_name: ca.jxnu.gqc.com
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca.jxnu.gqc.com
+      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.jxnu.gqc.com-cert.pem
+      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/priv_sk
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.jxnu.gqc.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/priv_sk
+    ports:
+      - 7254:7254
+    command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+    volumes:
+      - ./crypto-config/peerOrganizations/jxnu.gqc.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    networks:
+      - test
+
+
+
+  couchdb0:
+    container_name: couchdb0
+    image: hyperledger/fabric-couchdb:latest
+    # Populate the COUCHDB_USER and COUCHDB_PASSWORD to set an admin user and password
+    # for CouchDB.  This will prevent CouchDB from operating in an "Admin Party" mode.
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=123456
+    # Comment/Uncomment the port mapping if you want to hide/expose the CouchDB service,
+    # for jxnu map it to utilize Fauxton User Interface in dev environments.
+    ports:
+      - "5984:5984"
+    networks:
+      - test
+
+  couchdb1:
+    container_name: couchdb1
+    image: hyperledger/fabric-couchdb:latest
+    # Populate the COUCHDB_USER and COUCHDB_PASSWORD to set an admin user and password
+    # for CouchDB.  This will prevent CouchDB from operating in an "Admin Party" mode.
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=123456
+    # Comment/Uncomment the port mapping if you want to hide/expose the CouchDB service,
+    # for jxnu map it to utilize Fauxton User Interface in dev environments.
+    ports:
+      - "7984:5984"
+    networks:
+      - test
+
+  couchdb2:
+    container_name: couchdb2
+    image: hyperledger/fabric-couchdb:latest
+    # Populate the COUCHDB_USER and COUCHDB_PASSWORD to set an admin user and password
+    # for CouchDB.  This will prevent CouchDB from operating in an "Admin Party" mode.
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=123456
+    # Comment/Uncomment the port mapping if you want to hide/expose the CouchDB service,
+    # for jxnu map it to utilize Fauxton User Interface in dev environments.
+    ports:
+      - "9984:5984"
+    networks:
+      - test

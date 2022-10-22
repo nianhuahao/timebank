@@ -1,0 +1,183 @@
+
+version: 1.0.0
+
+client:
+
+  organization: qsh
+
+  logging:
+    level: info
+
+  cryptoconfig:
+    path: /root/go/src/timebank/fixtures/crypto-config
+
+  credentialStore:
+
+    path: "/tmp/state-store"
+
+    cryptoStore:
+      path: /tmp/msp
+
+  BCCSP:
+    security:
+      enabled: true
+      default:
+        provider: "SW"
+      hashAlgorithm: "SHA2"
+      softVerify: true
+      level: 256
+
+  tlsCerts:
+    systemCertPool: true
+
+    client:
+      key:
+        path: /root/go/src/timebank/fixtures/crypto-config/peerOrganizations/jxnu.qsh.com/users/User1@jxnu.qsh.com/tls/client.key
+      cert:
+        path: /root/go/src/timebank/fixtures/crypto-config/peerOrganizations/jxnu.qsh.com/users/User1@jxnu.qsh.com/tls/client.crt
+
+
+channels:
+  mychannel:
+    peers:
+      peer0.jxnu.qsh.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+      peer0.jxnu.yh.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+      peer0.jxnu.gqc.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+    policies:
+      queryChannelConfig:
+        minResponses: 1
+        maxTargets: 1
+        retryOpts:
+          attempts: 5
+          initialBackoff: 500ms
+          maxBackoff: 5s
+          backoffFactor: 2.0
+
+organizations:
+  qsh:
+    mspid: QshMSP
+
+    cryptoPath:  peerOrganizations/jxnu.qsh.com/users/{username}@jxnu.qsh.com/msp
+
+    peers:
+      - peer0.jxnu.qsh.com
+
+  yh:
+    mspid: YhMSP
+
+    cryptoPath:  peerOrganizations/jxnu.yh.com/users/{username}@jxnu.yh.com/msp
+
+    peers:
+      - peer0.jxnu.yh.com
+
+  gqc:
+    mspid: GqcMSP
+
+    cryptoPath:  peerOrganizations/jxnu.gqc.com/users/{username}@jxnu.gqc.com/msp
+
+    peers:
+      - peer0.jxnu.gqc.com
+
+  ordererorg:
+    mspID: OrdererMSP
+
+    cryptoPath: ordererOrganizations/jxnu.com/users/{username}@jxnu.com/msp
+
+
+
+orderers:
+
+
+  orderer.jxnu.com:
+    url: orderer.jxnu.com:7050
+
+
+    grpcOptions:
+      ssl-target-name-override: orderer.jxnu.com
+      keep-alive-time: 0s
+      keep-alive-timeout: 20s
+      keep-alive-permit: false
+      fail-fast: false
+      allow-insecure: false
+
+    tlsCACerts:
+      path: /root/go/src/timebank/fixtures/crypto-config/ordererOrganizations/jxnu.com/tlsca/tlsca.jxnu.com-cert.pem
+
+
+peers:
+
+
+  peer0.jxnu.qsh.com:
+    url: peer0.jxnu.qsh.com:7051
+    grpcOptions:
+      ssl-target-name-override: peer0.jxnu.qsh.com
+      keep-alive-time: 0s
+      keep-alive-timeout: 20s
+      keep-alive-permit: false
+      fail-fast: false
+      allow-insecure: false
+
+    tlsCACerts:
+      path: /root/go/src/timebank/fixtures/crypto-config/peerOrganizations/jxnu.qsh.com/tlsca/tlsca.jxnu.qsh.com-cert.pem
+
+
+  peer0.jxnu.yh.com:
+    url: peer0.jxnu.yh.com:7151
+    grpcOptions:
+      ssl-target-name-override: peer0.jxnu.yh.com
+      keep-alive-time: 0s
+      keep-alive-timeout: 20s
+      keep-alive-permit: false
+      fail-fast: false
+      allow-insecure: false
+
+    tlsCACerts:
+      path: /root/go/src/timebank/fixtures/crypto-config/peerOrganizations/jxnu.yh.com/tlsca/tlsca.jxnu.yh.com-cert.pem
+
+  peer0.jxnu.gqc.com:
+    url: peer0.jxnu.gqc.com:7251
+    grpcOptions:
+      ssl-target-name-override: peer0.jxnu.gqc.com
+      keep-alive-time: 0s
+      keep-alive-timeout: 20s
+      keep-alive-permit: false
+      fail-fast: false
+      allow-insecure: false
+
+    tlsCACerts:
+      path: /root/go/src/timebank/fixtures/crypto-config/peerOrganizations/jxnu.gqc.com/tlsca/tlsca.jxnu.gqc.com-cert.pem
+
+
+entityMatchers:
+  peer:
+
+    - pattern: (\w+).jxnu.qsh.com:(\d+)
+      urlSubstitutionExp: ${1}.jxnu.qsh.com:${2}
+      sslTargetOverrideUrlSubstitutionExp: ${1}.jxnu.qsh.com
+      mappedHost: peer0.jxnu.qsh.com
+
+    - pattern: (\w+).jxnu.yh.com:(\d+)
+      urlSubstitutionExp: ${1}.jxnu.yh.com:${2}
+      sslTargetOverrideUrlSubstitutionExp: ${1}.jxnu.yh.com
+      mappedHost: peer0.jxnu.yh.com
+
+    - pattern: (\w+).jxnu.gqc.com:(\d+)
+      urlSubstitutionExp: ${1}.jxnu.gqc.com:${2}
+      sslTargetOverrideUrlSubstitutionExp: ${1}.jxnu.gqc.com
+      mappedHost: peer0.jxnu.gqc.com
+

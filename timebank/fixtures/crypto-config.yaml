@@ -1,0 +1,31 @@
+OrdererOrgs:
+  - Name: Jxnu
+    Domain: jxnu.com
+    EnableNodeOUs: true
+    Specs:
+      - Hostname: orderer
+
+PeerOrgs:
+  - Name: Qsh
+    Domain: jxnu.qsh.com
+    EnableNodeOUs: true
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+
+  - Name: Yh
+    Domain: jxnu.yh.com
+    EnableNodeOUs: true
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+
+  - Name: Gqc
+    Domain: jxnu.gqc.com
+    EnableNodeOUs: true
+    Template:
+      Count: 1
+    Users:
+      Count: 1
